@@ -82,7 +82,7 @@ Below are some examples from one of my worlds. The map is approximately 10,000 b
 
 - `anvil-region` and `chunkmap` are WASM-compatible.
 - `blocks.json` and `biomes.json` were generated with [mc-data](https://github.com/sodium-labs/mc-data). Do not edit them manually.
-- Go on the [wiki](https://minecraft.wiki/w/Chunk_format) to understand how to chunks are stored.
+- Go check the [wiki](https://minecraft.wiki/w/Chunk_format) to understand how the chunks are stored.
 
 This repository contains the following projects:
 
