@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "crates/anvil-region",
+    "crates/chunkmap",
+    "crates/chunkmap-cli",
+    "crates/chunkmap-wasm",
+]
+resolver = "2"
+
+[profile.release]
+opt-level = 3
+panic = "unwind"
+codegen-units = 1
+lto = true

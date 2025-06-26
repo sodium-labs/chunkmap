@@ -1,0 +1,10 @@
+[package]
+name = "chunkmap-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anvil-region = { path = "../anvil-region" }
+chunkmap = { path = "../chunkmap" }
+clap = { version = "4.5.40", features = ["derive"] }
+indicatif = "0.17.11"

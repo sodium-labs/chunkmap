@@ -1,0 +1,13 @@
+[package]
+name = "anvil-region"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+flate2 = { version = "1.0", default-features = false, features = ["rust_backend"] }
+fastnbt = "2"
+serde = { version = "1", features = ["derive"] }
+
+[lib]
+name = "anvilregion"
+path = "src/lib.rs"
