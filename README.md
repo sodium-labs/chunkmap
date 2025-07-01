@@ -96,5 +96,11 @@ This repository contains the following projects:
 To compile the WASM module, run:
 
 ```bash
-wasm-pack build --release crates/chunkmap-wasm --target web --out-dir ../wasm
+wasm-pack build --release crates/chunkmap-wasm --target web --out-dir ../../wasm
+```
+
+### Building the GitHub release CLI on Windows, for Windows
+
+```bash
+cargo build --release --target x86_64-pc-windows-msvc
 ```
