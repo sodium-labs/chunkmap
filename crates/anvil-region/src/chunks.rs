@@ -1,6 +1,6 @@
 use crate::{
     blocks::{Block, BlockPosition},
-    dimensions::{get_dimension_height_offset, Dimension},
+    dimensions::{get_dimension_height_offset, get_dimension_heights, Dimension},
     heightmaps::{decode_heightmap, Heightmap},
     nbt::Compound,
     sections::{get_biome_at_position, get_block_at_position},
@@ -96,6 +96,7 @@ pub fn parse_chunk_surface(
     let (mb_heightmap, of_heightmap) = parse_chunk_heightmaps(root)?;
     let sections = parse_chunk_sections(root)?;
     let dimension_offset = get_dimension_height_offset(dimension);
+    let (min_y, max_y) = get_dimension_heights(dimension);
 
     for local_z in 0..16i32 {
         for local_x in 0..16i32 {
@@ -104,8 +105,11 @@ pub fn parse_chunk_surface(
             let world_x = chunk.position.x * 16 + local_x;
             let world_z = chunk.position.z * 16 + local_z;
 
-            let surface_y = mb_heightmap[height_index] as i32 - 1 + dimension_offset;
+            let mut surface_y = mb_heightmap[height_index] as i32 - 1 + dimension_offset;
             let mut ocean_y = of_heightmap[height_index] as i32 - 1 + dimension_offset;
+
+            surface_y = surface_y.max(min_y).min(max_y);
+            ocean_y = ocean_y.max(min_y).min(max_y);
 
             if dimension != &Dimension::Overworld {
                 // TODO: There can be ocean in the End too?

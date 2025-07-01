@@ -17,6 +17,6 @@ pub fn get_dimension_heights(dimension: &Dimension) -> (i32, i32) {
     match dimension {
         Dimension::Overworld => (-64, 320),
         Dimension::Nether => (0, 256),
-        Dimension::End => (-64, 256),
+        Dimension::End => (0, 256),
     }
 }
