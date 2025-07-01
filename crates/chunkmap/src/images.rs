@@ -169,6 +169,11 @@ pub fn create_region_images(
             }
         }
 
+        if !unknown_blocks.is_empty() {
+            eprintln!("Unknown blocks found: {unknown_blocks:?}");
+            eprintln!("");
+        }
+
         images.push((*rx, *rz, img));
     }
 
