@@ -5,12 +5,14 @@ This repository powers [chunkmap.sodiumlabs.xyz](https://chunkmap.sodiumlabs.xyz
 
 <img src=".github/header.png" width="700" alt="Chunkmap header">
 
-<img src=".github/cli-demo.gif" width="600" alt="Chunkmap CLI demo">
+<img src=".github/nether.png" width="700" alt="Nether 2D view example">
 
 ## How to Use
 
-Chunkmap is currently in beta and has only been tested with Minecraft 1.21.x worlds.  
-Modded worlds are not supported. Chunks generated before 1.18 are not compatible.
+> [!WARNING]
+> Chunkmap is currently in beta and has only been tested with Minecraft 1.21.x worlds.  
+> Modded worlds are not supported. Chunks generated before 1.18 are not compatible.
+> The nether generation is a bit slower than the overworld/end.
 
 Download the CLI from the [releases](https://github.com/sodium-labs/chunkmap/releases) page, or build it yourself with Cargo:
 
