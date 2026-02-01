@@ -8,7 +8,7 @@ pub enum Dimension {
 pub fn get_dimension_height_offset(dimension: &Dimension) -> i32 {
     match dimension {
         Dimension::Overworld => -64,
-        Dimension::Nether => -16,
+        Dimension::Nether => 0,
         Dimension::End => 0,
     }
 }

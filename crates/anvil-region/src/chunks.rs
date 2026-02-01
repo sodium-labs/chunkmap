@@ -96,8 +96,60 @@ pub fn parse_chunk_surface(
     let (mb_heightmap, of_heightmap) = parse_chunk_heightmaps(root)?;
     let sections = parse_chunk_sections(root)?;
     let dimension_offset = get_dimension_height_offset(dimension);
-    let (min_y, max_y) = get_dimension_heights(dimension);
 
+    let (min_y, max_y) = if dimension == &Dimension::Nether {
+        // In the nether we only care about the blocks between lava level (31) and the bedrock roof
+        (31, 127)
+    } else {
+        get_dimension_heights(dimension)
+    };
+
+    let mut nether_columns: Option<Vec<Vec<Option<String>>>> = None;
+    // None = dynamic height (much slower)
+    // Some = take only blocks at this level (essentially a slice of the nether)
+    // TODO: make this configurable
+    let nether_fixed_height: Option<i32> = None;
+
+    // TODO: move that
+    let min_nether = 31i32;
+    let max_nether = 127i32;
+
+    // If we are in the nether, precompute the block columns for later
+    if dimension == &Dimension::Nether && nether_fixed_height.is_none() {
+        let height_span = (max_nether - min_nether + 1) as usize;
+        let mut columns = vec![vec![None; height_span]; 16 * 16];
+
+        let min_section = min_nether.div_euclid(16);
+        let max_section = max_nether.div_euclid(16);
+
+        for section_y in min_section..=max_section {
+            if let Some(section) = sections.get(&section_y) {
+                for local_y in 0..16 {
+                    let global_y = section_y * 16 + local_y;
+                    if global_y < min_nether || global_y > max_nether {
+                        continue;
+                    }
+                    let idx_y = (global_y - min_nether) as usize;
+                    for local_z_iter in 0..16 {
+                        for local_x_iter in 0..16 {
+                            let col_idx = (local_z_iter * 16 + local_x_iter) as usize;
+                            let (block_name, _) = get_block_at_position(
+                                section,
+                                local_x_iter as usize,
+                                local_y as usize,
+                                local_z_iter as usize,
+                            )?;
+                            columns[col_idx][idx_y] = Some(block_name);
+                        }
+                    }
+                }
+            }
+        }
+
+        nether_columns = Some(columns);
+    }
+
+    // Iterate in a chunk square and find each surface block
     for local_z in 0..16i32 {
         for local_x in 0..16i32 {
             let height_index = (local_z * 16 + local_x) as usize;
@@ -114,6 +166,52 @@ pub fn parse_chunk_surface(
             if dimension != &Dimension::Overworld {
                 // TODO: There can be ocean in the End too?
                 ocean_y = surface_y;
+            }
+
+            // Nether: start at bedrock roof (max_nether), search downward for first air block;
+            // continue downward until a non-air block; If no air was found first,
+            // or no non-air block was found in the second step, use block at level 31 (min_nether)
+            // TODO: performance
+            if dimension == &Dimension::Nether {
+                if let Some(height) = nether_fixed_height {
+                    surface_y = height;
+                    ocean_y = height;
+                } else {
+                    let columns = nether_columns.as_ref().expect("nether columns built");
+                    let col_index = (local_z * 16 + local_x) as usize;
+                    let col = &columns[col_index];
+
+                    let mut chosen_y: Option<i32> = None;
+
+                    for y_check in (min_nether..=max_nether).rev() {
+                        let idx = (y_check - min_nether) as usize;
+                        if let Some(name) = &col[idx] {
+                            let is_air =
+                                name == "minecraft:air" || name == "air" || name.ends_with("_air");
+                            if is_air {
+                                let mut found_block_y: Option<i32> = None;
+                                for y_block in (min_nether..=(y_check - 1)).rev() {
+                                    let idx_block = (y_block - min_nether) as usize;
+                                    if let Some(name_block) = &col[idx_block] {
+                                        let is_air_block = name_block == "minecraft:air"
+                                            || name_block == "air"
+                                            || name_block.ends_with("_air");
+                                        if !is_air_block {
+                                            found_block_y = Some(y_block);
+                                            break;
+                                        }
+                                    }
+                                }
+                                chosen_y = Some(found_block_y.unwrap_or(min_nether));
+                                break;
+                            }
+                        }
+                    }
+
+                    let selected = chosen_y.unwrap_or(min_nether);
+                    surface_y = selected;
+                    ocean_y = selected;
+                }
             }
 
             // TODO: ocean_y should be renamed.
