@@ -1,7 +1,13 @@
 /target
 
+# WASM
+/wasm
+
 # Testing
 /end
 /heightmaps
 /nether
 /overworld
+/output
+/tests
+/world
